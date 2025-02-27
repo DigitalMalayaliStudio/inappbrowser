@@ -55,14 +55,7 @@
     </div>
 
     <script>
-        function isInAppBrowser() {
-            var ua = navigator.userAgent || navigator.vendor || window.opera;
-            console.log("User-Agent:", ua);
-
-            return /FBAN|FBAV|Instagram|Twitter|WhatsApp|Telegram|Snapchat/i.test(ua);
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
+            document.addEventListener("DOMContentLoaded", function () {
     console.log("Script Loaded");
     if (isInAppBrowser()) {
         console.log("In-App Browser Detected!");
@@ -71,6 +64,16 @@
         console.log("Regular Browser Detected");
     }
 });
+function isInAppBrowser() {
+    let ua = navigator.userAgent || navigator.vendor || window.opera;
+    console.log("User-Agent:", ua);
+    
+    // Detect in-app browsers for Facebook, Instagram, Twitter, WhatsApp, and Telegram
+    return /FBAN|FBAV|Instagram|Twitter|WhatsApp|Telegram|Line|WeChat|Snapchat/i.test(ua);
+}
+
+
+    
 
 
         function openInDefaultBrowser() {
