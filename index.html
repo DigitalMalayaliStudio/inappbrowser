@@ -21,7 +21,7 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
             text-align: center;
-            z-index: 1001; /* Above overlay */
+            z-index: 1001;
             width: 80%;
             max-width: 400px;
         }
@@ -46,16 +46,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Black with 50% opacity */
-            z-index: 1000; /* Below popup, above content */
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
     <h2>Test In-App Browser Detection</h2>
     <p>If you open this page in Instagram, Telegram, or WhatsApp, a popup will appear.</p>
+    <p id="debug" style="font-size: 14px; color: #666;"></p> <!-- Debug output -->
 
-    <div id="overlay"></div> <!-- Overlay element -->
+    <div id="overlay"></div>
     <div id="popup">
         <p>You are using an in-app browser. For a better experience, open this link in your default browser.</p>
         <button id="openDefault">Open in Default Browser</button>
@@ -63,22 +64,35 @@
 
     <script>
         function isInAppBrowser() {
-            const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+            const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
             const patterns = [
-                /FBAN|FBAV/i,          // Facebook
-                /Instagram/i,         // Instagram
-                /Twitter/i,           // Twitter
-                /WhatsApp/i,          // WhatsApp
-                /Telegram/i,          // Telegram
-                /Snapchat/i,          // Snapchat
-                /Line/i,              // Line
-                /WeChat/i,            // WeChat
-                /WebView/i            // Generic WebView
+                /fban|fbav/,          // Facebook
+                /instagram/,         // Instagram
+                /twitter/,           // Twitter
+                /whatsapp/,          // WhatsApp
+                /telegram/,          // Telegram
+                /snapchat/,          // Snapchat
+                /line/,              // Line
+                /wechat/,            // WeChat
+                /webview/            // Generic WebView
             ];
 
-            return patterns.some(pattern => pattern.test(ua)) ||
-                   window.innerWidth === window.outerWidth || 
-                   !window.navigator.standalone;
+            // Primary detection: Check for known in-app browser signatures
+            const isAppBrowser = patterns.some(pattern => pattern.test(ua));
+
+            // Secondary checks only if primary fails (more specific to WebViews)
+            const extraChecks = isAppBrowser && (
+                window.innerWidth === window.outerWidth || 
+                !window.navigator.standalone
+            );
+
+            // Debug info
+            const debugEl = document.getElementById("debug");
+            if (debugEl) {
+                debugEl.textContent = `UA: ${ua}, In-App: ${isAppBrowser}, Extra Checks: ${extraChecks}`;
+            }
+
+            return isAppBrowser;
         }
 
         function openInDefaultBrowser() {
@@ -116,11 +130,12 @@
         function checkBrowser() {
             const popup = document.getElementById("popup");
             const overlay = document.getElementById("overlay");
+            const isInApp = isInAppBrowser();
 
-            if (isInAppBrowser()) {
+            if (isInApp) {
                 if (popup && overlay) {
                     popup.style.display = "block";
-                    overlay.style.display = "block"; // Show overlay with popup
+                    overlay.style.display = "block";
                     const openButton = document.getElementById("openDefault");
                     openButton.removeEventListener("click", openInDefaultBrowser);
                     openButton.addEventListener("click", openInDefaultBrowser);
@@ -128,7 +143,7 @@
             } else {
                 if (popup && overlay) {
                     popup.style.display = "none";
-                    overlay.style.display = "none"; // Hide overlay with popup
+                    overlay.style.display = "none";
                 }
                 sessionStorage.removeItem('defaultBrowserAttempted');
             }
