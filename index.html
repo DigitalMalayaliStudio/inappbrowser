@@ -78,7 +78,7 @@
             // Detection logic
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            const isInApp = isMobile && !isPC; // Broad detection for all mobile in-app browsers
+            const isInApp = isMobile && !isPC; // Broad detection to ensure Telegram triggers
 
             // Debug output
             const urlParams = new URLSearchParams(window.location.search);
