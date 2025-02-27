@@ -76,38 +76,61 @@
             const url = window.location.href;
             const ua = navigator.userAgent.toLowerCase();
 
-            // Android intent for Chrome (or default browser)
+            // Prevent multiple rapid clicks
+            const button = document.getElementById("openDefault");
+            button.disabled = true;
+
             if (ua.includes("android")) {
+                // Android: Use intent URI to force default browser
                 const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
                 window.location.href = intentUrl;
-                // Fallback after a short delay if intent fails
+
+                // Immediate fallback if intent fails
                 setTimeout(() => {
-                    window.open(url, '_blank') || (window.location.href = url);
-                }, 500);
+                    window.location.href = url; // Direct navigation as fallback
+                }, 100); // Reduced delay for quicker response
             }
-            // iOS: Try universal link or fallback
             else if (ua.includes("iphone") || ua.includes("ipad")) {
-                window.location.href = url; // iOS often respects direct navigation
+                // iOS: Direct navigation often works
+                window.location.href = url;
+
+                // Fallback to new tab if needed
                 setTimeout(() => {
                     window.open(url, '_blank');
-                }, 500);
+                }, 100);
             }
-            // Generic fallback
             else {
-                window.open(url, '_blank') || (window.location.href = url);
+                // Generic: Try new tab first, then redirect
+                const newWindow = window.open(url, '_blank');
+                if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                    window.location.href = url;
+                }
             }
+
+            // Re-enable button after attempt (optional, remove if not needed)
+            setTimeout(() => {
+                button.disabled = false;
+            }, 1000);
         }
 
         function checkBrowser() {
-            if (isInAppBrowser()) {
+            // Check if already flagged as opened in default browser
+            const isDefaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
+
+            if (isInAppBrowser() && !isDefaultBrowserOpened) {
                 const popup = document.getElementById("popup");
                 if (popup) {
                     popup.style.display = "block";
-                    document.getElementById("openDefault").addEventListener("click", openInDefaultBrowser);
+                    document.getElementById("openDefault").addEventListener("click", () => {
+                        openInDefaultBrowser();
+                        // Flag as opened after first click to prevent popup on reload
+                        sessionStorage.setItem('defaultBrowserOpened', 'true');
+                    });
                 }
             }
         }
 
+        // Run check on load
         document.addEventListener("DOMContentLoaded", checkBrowser);
         checkBrowser();
     </script>
