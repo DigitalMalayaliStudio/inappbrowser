@@ -93,10 +93,10 @@
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            // Updated: Mobile devices are in-app unless explicitly a PC or a standalone default browser without WebView/signature
-            const isInApp = isMobile && !isPC && (hasInAppSignature || hasWebView || !isDefaultBrowser);
+            // Updated: Mobile and not PC is enough to be in-app, no strict requirement for signature/WebView
+            const isInApp = isMobile && !isPC;
 
-            // Debug output (uncommented for testing)
+            // Debug output
             const debugEl = document.getElementById("debug");
             if (debugEl) {
                 debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}`;
