@@ -93,8 +93,7 @@
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            // Updated: Mobile and not PC is enough to be in-app, no strict requirement for signature/WebView
-            const isInApp = isMobile && !isPC;
+            const isInApp = isMobile && !isPC; // Simplified to ensure Telegram triggers
 
             // Debug output
             const debugEl = document.getElementById("debug");
