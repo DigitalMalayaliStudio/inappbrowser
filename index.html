@@ -93,8 +93,8 @@
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            // In-app if mobile, not PC, and has signature or WebView
-            const isInApp = isMobile && !isPC && (hasInAppSignature || hasWebView);
+            // Broaden to catch Telegram’s UA, tighten for default browsers
+            const isInApp = isMobile && !isPC && (!isDefaultBrowser || hasInAppSignature || hasWebView);
 
             // Debug output with sessionStorage check
             const defaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
@@ -146,7 +146,7 @@
             const isInApp = isInAppBrowser();
             const defaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
 
-            // Show popup only if in-app and not previously opened in default browser
+            // Show popup if in-app and not previously opened in default browser
             if (isInApp && !defaultBrowserOpened) {
                 if (popup && overlay) {
                     popup.style.display = "block";
@@ -160,8 +160,8 @@
                     popup.style.display = "none";
                     overlay.style.display = "none";
                 }
-                // Clear flag if not in-app to reset for next in-app visit
-                if (!isInApp) {
+                // Clear flag when back in in-app context to allow popup on revisit
+                if (isInApp) {
                     sessionStorage.removeItem('defaultBrowserOpened');
                 }
             }
