@@ -66,7 +66,7 @@
         function isInAppBrowser() {
             const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
 
-            // Known in-app browser signatures (for reference, not strictly required)
+            // Known in-app browser signatures (for reference)
             const inAppPatterns = [
                 'fban', 'fbav', 'instagram', 'twitter', 'whatsapp', 'telegram', 'snapchat', 'line', 'wechat', 'wv', 'webview'
             ];
@@ -78,8 +78,7 @@
             // Detection logic
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            // Broad check for all mobile devices, refined by URL param
-            const isInApp = isMobile && !isPC;
+            const isInApp = isMobile && !isPC; // Broad detection for all mobile in-app browsers
 
             // Debug output
             const urlParams = new URLSearchParams(window.location.search);
