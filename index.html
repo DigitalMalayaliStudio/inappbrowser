@@ -97,10 +97,10 @@
             const isInApp = isMobile && !isPC && (!isDefaultBrowser || hasInAppSignature || hasWebView);
 
             // Debug output
-            const debugEl = document.getElementById("debug");
-            if (debugEl) {
-                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}`;
-            }
+            // const debugEl = document.getElementById("debug");
+            // if (debugEl) {
+            //     debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}`;
+            // }
 
             return isInApp;
         }
