@@ -62,6 +62,17 @@
             return /FBAN|FBAV|Instagram|Twitter|WhatsApp|Telegram|Snapchat/i.test(ua);
         }
 
+        document.addEventListener("DOMContentLoaded", function () {
+    console.log("Script Loaded");
+    if (isInAppBrowser()) {
+        console.log("In-App Browser Detected!");
+        document.getElementById("popup").style.display = "block";
+    } else {
+        console.log("Regular Browser Detected");
+    }
+});
+
+
         function openInDefaultBrowser() {
             let url = window.location.href;
 
