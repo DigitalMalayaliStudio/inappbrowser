@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-App Browser Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            width: 80%;
+            max-width: 400px;
+        }
+        #popup p {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        #openDefault {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Test In-App Browser Detection</h2>
+    <p>If you open this page in Instagram, Telegram, or WhatsApp, a popup will appear.</p>
+
+    <div id="popup">
+        <p>You are using an in-app browser. For a better experience, open this link in your default browser.</p>
+        <button id="openDefault">Open in Default Browser</button>
+    </div>
+
+   <script src="script.js"></script>
+</body>
+</html>
