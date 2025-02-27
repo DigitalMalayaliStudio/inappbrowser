@@ -65,74 +65,70 @@
                 /WebView/i            // Generic WebView
             ];
 
-            const isAppBrowser = patterns.some(pattern => pattern.test(ua)) ||
-                                 window.innerWidth === window.outerWidth || 
-                                 !window.navigator.standalone;
-
-            return isAppBrowser;
+            return patterns.some(pattern => pattern.test(ua)) ||
+                   window.innerWidth === window.outerWidth || 
+                   !window.navigator.standalone;
         }
 
         function openInDefaultBrowser() {
             const url = window.location.href;
             const ua = navigator.userAgent.toLowerCase();
-
-            // Prevent multiple rapid clicks
             const button = document.getElementById("openDefault");
             button.disabled = true;
 
             if (ua.includes("android")) {
-                // Android: Use intent URI to force default browser
                 const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
                 window.location.href = intentUrl;
-
-                // Immediate fallback if intent fails
                 setTimeout(() => {
-                    window.location.href = url; // Direct navigation as fallback
-                }, 100); // Reduced delay for quicker response
+                    window.location.href = url;
+                }, 100);
             }
             else if (ua.includes("iphone") || ua.includes("ipad")) {
-                // iOS: Direct navigation often works
                 window.location.href = url;
-
-                // Fallback to new tab if needed
                 setTimeout(() => {
                     window.open(url, '_blank');
                 }, 100);
             }
             else {
-                // Generic: Try new tab first, then redirect
                 const newWindow = window.open(url, '_blank');
                 if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                     window.location.href = url;
                 }
             }
 
-            // Re-enable button after attempt (optional, remove if not needed)
+            // Set flag to indicate an attempt was made
+            sessionStorage.setItem('defaultBrowserAttempted', 'true');
             setTimeout(() => {
                 button.disabled = false;
             }, 1000);
         }
 
         function checkBrowser() {
-            // Check if already flagged as opened in default browser
-            const isDefaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
+            const popup = document.getElementById("popup");
 
-            if (isInAppBrowser() && !isDefaultBrowserOpened) {
-                const popup = document.getElementById("popup");
+            // Always check the current browser state on load
+            if (isInAppBrowser()) {
+                // Show popup only if in an in-app browser
                 if (popup) {
                     popup.style.display = "block";
-                    document.getElementById("openDefault").addEventListener("click", () => {
-                        openInDefaultBrowser();
-                        // Flag as opened after first click to prevent popup on reload
-                        sessionStorage.setItem('defaultBrowserOpened', 'true');
-                    });
+                    const openButton = document.getElementById("openDefault");
+                    // Ensure event listener is added only once
+                    openButton.removeEventListener("click", openInDefaultBrowser); // Prevent duplicates
+                    openButton.addEventListener("click", openInDefaultBrowser);
                 }
+            } else {
+                // Hide popup if not in an in-app browser
+                if (popup) {
+                    popup.style.display = "none";
+                }
+                // Clear the flag when in default browser to reset for future in-app visits
+                sessionStorage.removeItem('defaultBrowserAttempted');
             }
         }
 
-        // Run check on load
+        // Run check on load and ensure it’s not cached
         document.addEventListener("DOMContentLoaded", checkBrowser);
-        checkBrowser();
+        checkBrowser(); // Immediate check
     </script>
 </body>
 </html>
