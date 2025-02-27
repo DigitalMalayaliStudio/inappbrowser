@@ -77,8 +77,7 @@
                 'line',              // Line
                 'wechat',            // WeChat
                 'wv',                // Android WebView shorthand
-                'webview',           // Generic WebView
-                'mobile'             // Common in mobile in-app browsers
+                'webview'            // Generic WebView
             ];
 
             // Known default browser signatures
@@ -93,12 +92,14 @@
             // Detection logic
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
-            const isInApp = isMobile && !isPC && (hasInAppSignature || !isDefaultBrowser || ua.includes('wv') || ua.includes('webview'));
+            const hasWebView = ua.includes('wv') || ua.includes('webview');
+            // In-app if mobile, not PC, and either has signature, WebView, or isn’t a standalone default browser
+            const isInApp = isMobile && !isPC && (!isDefaultBrowser || hasInAppSignature || hasWebView);
 
             // Debug output
             const debugEl = document.getElementById("debug");
             if (debugEl) {
-                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}`;
+                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}`;
             }
 
             return isInApp;
