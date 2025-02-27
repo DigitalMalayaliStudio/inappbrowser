@@ -66,23 +66,9 @@
         function isInAppBrowser() {
             const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
 
-            // Known in-app browser signatures
+            // Known in-app browser signatures (for reference, not strictly required)
             const inAppPatterns = [
-                'fban', 'fbav',       // Facebook
-                'instagram',         // Instagram
-                'twitter',           // Twitter
-                'whatsapp',          // WhatsApp
-                'telegram',          // Telegram
-                'snapchat',          // Snapchat
-                'line',              // Line
-                'wechat',            // WeChat
-                'wv',                // Android WebView shorthand
-                'webview'            // Generic WebView
-            ];
-
-            // Known default browser signatures
-            const defaultBrowserPatterns = [
-                'chrome', 'firefox', 'safari', 'edge', 'opr', 'ucbrowser', 'samsungbrowser'
+                'fban', 'fbav', 'instagram', 'twitter', 'whatsapp', 'telegram', 'snapchat', 'line', 'wechat', 'wv', 'webview'
             ];
 
             // Platform checks
@@ -91,29 +77,31 @@
 
             // Detection logic
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
-            const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            // In-app if mobile, not PC, and either has signature or WebView
-            const isInApp = isMobile && !isPC && (hasInAppSignature || hasWebView);
+            // Broad check for all mobile devices, refined by URL param
+            const isInApp = isMobile && !isPC;
 
-            // Debug output with sessionStorage check
-            const defaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
+            // Debug output
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDefault = urlParams.get('default') === 'true';
             const debugEl = document.getElementById("debug");
             if (debugEl) {
-                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}, Default Browser Opened: ${defaultBrowserOpened}`;
+                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}, Is Default: ${isDefault}`;
             }
 
             return isInApp;
         }
 
         function openInDefaultBrowser() {
-            const url = window.location.href;
+            let url = window.location.href;
             const ua = navigator.userAgent.toLowerCase();
             const button = document.getElementById("openDefault");
             button.disabled = true;
 
-            // Set flag before redirecting
-            sessionStorage.setItem('defaultBrowserOpened', 'true');
+            // Add ?default=true to URL for default browser
+            if (!url.includes('?default=true')) {
+                url += (url.includes('?') ? '&' : '?') + 'default=true';
+            }
 
             if (ua.includes("android")) {
                 const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
@@ -144,13 +132,11 @@
             const popup = document.getElementById("popup");
             const overlay = document.getElementById("overlay");
             const isInApp = isInAppBrowser();
-            const defaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDefault = urlParams.get('default') === 'true';
 
-            // Reset flag on every page load to ensure popup shows each time in in-app
-            sessionStorage.removeItem('defaultBrowserOpened');
-
-            // Show popup if in-app
-            if (isInApp) {
+            // Show popup if in-app and not marked as default
+            if (isInApp && !isDefault) {
                 if (popup && overlay) {
                     popup.style.display = "block";
                     overlay.style.display = "block";
