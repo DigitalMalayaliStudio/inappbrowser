@@ -49,40 +49,52 @@
     <div id="popup">
         <p>You are using an in-app browser. For a better experience, open this link in your default browser.</p>
         <button id="openDefault">Open in Default Browser</button>
+        <br><br>
+        <p>Or manually copy and paste this URL:</p>
+        <input type="text" id="manualLink" value="" readonly style="width: 90%; padding: 5px; text-align: center;">
     </div>
 
-   <script>
-    function isInAppBrowser() {
-    var ua = navigator.userAgent || navigator.vendor || window.opera;
-    console.log("User-Agent:", ua);
+    <script>
+        function isInAppBrowser() {
+            var ua = navigator.userAgent || navigator.vendor || window.opera;
+            console.log("User-Agent:", ua);
 
-    return /FBAN|FBAV|Instagram|Twitter|WhatsApp|Telegram|Snapchat/i.test(ua);
-}
+            return /FBAN|FBAV|Instagram|Twitter|WhatsApp|Telegram|Snapchat/i.test(ua);
+        }
 
-function openInDefaultBrowser() {
-    let url = window.location.href;
+        function openInDefaultBrowser() {
+            let url = window.location.href;
 
-    // For Android: Use intent:// to open the default browser
-    if (/android/i.test(navigator.userAgent)) {
-        window.location = "intent://" + url.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end;";
-    } 
-    // For iOS: Use Safari redirection
-    else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        window.location = "googlechrome://" + url.replace(/^https?:\/\//, "");
-    } 
-    // Fallback for unknown cases
-    else {
-        window.open(url, "_blank");
-    }
-}
+            try {
+                // Android: Use intent:// to open in Chrome
+                if (/android/i.test(navigator.userAgent)) {
+                    window.location = "intent://" + url.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end;";
+                } 
+                // iOS: Try opening in Safari
+                else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    window.location = "https://google.com/search?q=" + encodeURIComponent(url);
+                } 
+                // Fallback: Open in new tab
+                else {
+                    window.open(url, "_blank");
+                }
+            } catch (error) {
+                alert("Failed to open in default browser. Copy the link manually.");
+            }
+        }
 
-document.addEventListener("DOMContentLoaded", function () {
-    if (isInAppBrowser()) {
-        let popup = document.getElementById("popup");
-        popup.style.display = "block";
-        document.getElementById("openDefault").addEventListener("click", openInDefaultBrowser);
-    }
-});
-   </script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (isInAppBrowser()) {
+                let popup = document.getElementById("popup");
+                popup.style.display = "block";
+                
+                let manualLink = document.getElementById("manualLink");
+                manualLink.value = window.location.href;
+
+                document.getElementById("openDefault").addEventListener("click", openInDefaultBrowser);
+            }
+        });
+    </script>
+
 </body>
 </html>
