@@ -54,7 +54,7 @@
 <body>
     <h2>Test In-App Browser Detection</h2>
     <p>If you open this page in Instagram, Telegram, or WhatsApp, a popup will appear.</p>
-    <p id="debug" style="font-size: 14px; color: #666;"></p> <!-- Debug output -->
+    <p id="debug" style="font-size: 14px; color: #666;"></p>
 
     <div id="overlay"></div>
     <div id="popup">
@@ -65,31 +65,26 @@
     <script>
         function isInAppBrowser() {
             const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
-            const patterns = [
-                /fban|fbav/,          // Facebook
-                /instagram/,         // Instagram
-                /twitter/,           // Twitter
-                /whatsapp/,          // WhatsApp
-                /telegram/,          // Telegram
-                /snapchat/,          // Snapchat
-                /line/,              // Line
-                /wechat/,            // WeChat
-                /webview/            // Generic WebView
+            const inAppPatterns = [
+                'fban', 'fbav',       // Facebook
+                'instagram',         // Instagram
+                'twitter',           // Twitter
+                'whatsapp',          // WhatsApp
+                'telegram',          // Telegram
+                'snapchat',          // Snapchat
+                'line',              // Line
+                'wechat',            // WeChat
+                'webview',           // Generic WebView
+                'wv'                 // Common WebView shorthand (e.g., Android)
             ];
 
-            // Primary detection: Check for known in-app browser signatures
-            const isAppBrowser = patterns.some(pattern => pattern.test(ua));
+            // Only return true if a specific in-app signature is found
+            const isAppBrowser = inAppPatterns.some(pattern => ua.includes(pattern));
 
-            // Secondary checks only if primary fails (more specific to WebViews)
-            const extraChecks = isAppBrowser && (
-                window.innerWidth === window.outerWidth || 
-                !window.navigator.standalone
-            );
-
-            // Debug info
+            // Debug output to see what's happening
             const debugEl = document.getElementById("debug");
             if (debugEl) {
-                debugEl.textContent = `UA: ${ua}, In-App: ${isAppBrowser}, Extra Checks: ${extraChecks}`;
+                debugEl.textContent = `User Agent: ${ua}, Detected as In-App: ${isAppBrowser}`;
             }
 
             return isAppBrowser;
