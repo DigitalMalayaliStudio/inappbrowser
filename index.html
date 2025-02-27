@@ -65,6 +65,8 @@
     <script>
         function isInAppBrowser() {
             const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
+
+            // Known in-app browser signatures
             const inAppPatterns = [
                 'fban', 'fbav',       // Facebook
                 'instagram',         // Instagram
@@ -74,20 +76,40 @@
                 'snapchat',          // Snapchat
                 'line',              // Line
                 'wechat',            // WeChat
-                'webview',           // Generic WebView
-                'wv'                 // Common WebView shorthand (e.g., Android)
+                'wv',                // Android WebView shorthand
+                'webview'            // Generic WebView
             ];
 
-            // Only return true if a specific in-app signature is found
-            const isAppBrowser = inAppPatterns.some(pattern => ua.includes(pattern));
+            // Known default browser signatures (PC and mobile)
+            const defaultBrowserPatterns = [
+                'chrome',            // Chrome (PC and mobile)
+                'firefox',           // Firefox (PC and mobile)
+                'safari',            // Safari (PC and mobile)
+                'edge',              // Edge (PC)
+                'opr',               // Opera (PC and mobile)
+                'ucbrowser',         // UCBrowser (mobile)
+                'samsungbrowser'     // Samsung Internet (mobile)
+            ];
 
-            // Debug output to see what's happening
+            // Detect in-app browser
+            const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
+
+            // Detect default browser
+            const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
+
+            // Additional check for PC-like environments
+            const isPC = ua.includes('windows') || ua.includes('macintosh') || ua.includes('linux') && !ua.includes('android');
+
+            // Logic: It's an in-app browser if it has an in-app signature and is NOT a standalone default browser or PC
+            const isInApp = hasInAppSignature && !(isDefaultBrowser && !ua.includes('wv') && !ua.includes('webview')) && !isPC;
+
+            // Debug output
             const debugEl = document.getElementById("debug");
             if (debugEl) {
-                debugEl.textContent = `User Agent: ${ua}, Detected as In-App: ${isAppBrowser}`;
+                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Is PC: ${isPC}, Detected as In-App: ${isInApp}`;
             }
 
-            return isAppBrowser;
+            return isInApp;
         }
 
         function openInDefaultBrowser() {
