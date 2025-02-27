@@ -42,7 +42,6 @@
     </style>
 </head>
 <body>
-
     <h2>Test In-App Browser Detection</h2>
     <p>If you open this page in Instagram, Telegram, or WhatsApp, a popup will appear.</p>
 
@@ -66,21 +65,39 @@
                 /WebView/i            // Generic WebView
             ];
 
-            // Enhanced detection: check for common in-app browser traits
             const isAppBrowser = patterns.some(pattern => pattern.test(ua)) ||
-                                 window.innerWidth === window.outerWidth || // Some in-app browsers mimic viewport
-                                 !window.navigator.standalone;              // Standalone mode check
+                                 window.innerWidth === window.outerWidth || 
+                                 !window.navigator.standalone;
 
             return isAppBrowser;
         }
 
         function openInDefaultBrowser() {
             const url = window.location.href;
-            // Try opening in a new tab or default browser
-            window.open(url, '_system') || window.open(url, '_blank') || (window.location.href = url);
+            const ua = navigator.userAgent.toLowerCase();
+
+            // Android intent for Chrome (or default browser)
+            if (ua.includes("android")) {
+                const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+                window.location.href = intentUrl;
+                // Fallback after a short delay if intent fails
+                setTimeout(() => {
+                    window.open(url, '_blank') || (window.location.href = url);
+                }, 500);
+            }
+            // iOS: Try universal link or fallback
+            else if (ua.includes("iphone") || ua.includes("ipad")) {
+                window.location.href = url; // iOS often respects direct navigation
+                setTimeout(() => {
+                    window.open(url, '_blank');
+                }, 500);
+            }
+            // Generic fallback
+            else {
+                window.open(url, '_blank') || (window.location.href = url);
+            }
         }
 
-        // Run detection immediately and on DOM load for reliability
         function checkBrowser() {
             if (isInAppBrowser()) {
                 const popup = document.getElementById("popup");
@@ -91,10 +108,8 @@
             }
         }
 
-        // Execute on load and immediately
         document.addEventListener("DOMContentLoaded", checkBrowser);
-        checkBrowser(); // Run immediately in case DOMContentLoaded doesn’t fire
+        checkBrowser();
     </script>
-
 </body>
 </html>
