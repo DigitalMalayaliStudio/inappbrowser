@@ -93,12 +93,14 @@
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            const isInApp = isMobile && !isPC; // Broad check to catch Telegram
+            // In-app if mobile, not PC, and has signature or WebView
+            const isInApp = isMobile && !isPC && (hasInAppSignature || hasWebView);
 
-            // Debug output
+            // Debug output with sessionStorage check
+            const defaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
             const debugEl = document.getElementById("debug");
             if (debugEl) {
-                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}`;
+                debugEl.textContent = `User Agent: ${ua}, In-App Signature: ${hasInAppSignature}, Default Browser: ${isDefaultBrowser}, Has WebView: ${hasWebView}, Is PC: ${isPC}, Is Mobile: ${isMobile}, Detected as In-App: ${isInApp}, Default Browser Opened: ${defaultBrowserOpened}`;
             }
 
             return isInApp;
@@ -158,7 +160,7 @@
                     popup.style.display = "none";
                     overlay.style.display = "none";
                 }
-                // Optionally clear the flag if not in-app (reset for next in-app visit)
+                // Clear flag if not in-app to reset for next in-app visit
                 if (!isInApp) {
                     sessionStorage.removeItem('defaultBrowserOpened');
                 }
