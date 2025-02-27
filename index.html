@@ -93,8 +93,7 @@
             const hasInAppSignature = inAppPatterns.some(pattern => ua.includes(pattern));
             const isDefaultBrowser = defaultBrowserPatterns.some(pattern => ua.includes(pattern));
             const hasWebView = ua.includes('wv') || ua.includes('webview');
-            // In-app if mobile, not PC, and either has signature or WebView (exclude standalone default browsers)
-            const isInApp = isMobile && !isPC && (hasInAppSignature || hasWebView);
+            const isInApp = isMobile && !isPC; // Broad check to catch Telegram
 
             // Debug output
             const debugEl = document.getElementById("debug");
@@ -110,6 +109,9 @@
             const ua = navigator.userAgent.toLowerCase();
             const button = document.getElementById("openDefault");
             button.disabled = true;
+
+            // Set flag before redirecting
+            sessionStorage.setItem('defaultBrowserOpened', 'true');
 
             if (ua.includes("android")) {
                 const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
@@ -131,7 +133,6 @@
                 }
             }
 
-            sessionStorage.setItem('defaultBrowserAttempted', 'true');
             setTimeout(() => {
                 button.disabled = false;
             }, 1000);
@@ -141,8 +142,10 @@
             const popup = document.getElementById("popup");
             const overlay = document.getElementById("overlay");
             const isInApp = isInAppBrowser();
+            const defaultBrowserOpened = sessionStorage.getItem('defaultBrowserOpened');
 
-            if (isInApp) {
+            // Show popup only if in-app and not previously opened in default browser
+            if (isInApp && !defaultBrowserOpened) {
                 if (popup && overlay) {
                     popup.style.display = "block";
                     overlay.style.display = "block";
@@ -155,7 +158,10 @@
                     popup.style.display = "none";
                     overlay.style.display = "none";
                 }
-                sessionStorage.removeItem('defaultBrowserAttempted');
+                // Optionally clear the flag if not in-app (reset for next in-app visit)
+                if (!isInApp) {
+                    sessionStorage.removeItem('defaultBrowserOpened');
+                }
             }
         }
 
